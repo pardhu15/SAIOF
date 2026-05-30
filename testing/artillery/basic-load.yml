@@ -1,0 +1,19 @@
+config:
+  target: "http://localhost:5000"
+  phases:
+    - duration: 60
+      arrivalRate: 15
+      name: "Normal E-Commerce User Load"
+  defaults:
+    headers:
+      Accept: "application/json"
+      Content-Type: "application/json"
+
+scenarios:
+  - name: "Browsing E-Commerce Catalog"
+    flow:
+      - get:
+          url: "/api/products"
+      - think: 2
+      - get:
+          url: "/api/analytics/overview"

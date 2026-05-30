@@ -1,0 +1,21 @@
+config:
+  target: "http://localhost:5000"
+  phases:
+    - duration: 60
+      arrivalRate: 20
+      name: "LRU Caching Efficiency Load"
+  defaults:
+    headers:
+      Accept: "application/json"
+
+scenarios:
+  - name: "Cache Hits Traversals"
+    flow:
+      - get:
+          url: "/api/products"
+      - think: 1
+      - get:
+          url: "/api/products"
+      - think: 1
+      - get:
+          url: "/api/products"

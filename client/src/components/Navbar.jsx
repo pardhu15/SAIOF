@@ -48,6 +48,9 @@ const Navbar = () => {
                 <NavLink to="/dashboard" className={navLinkStyle}>
                   Dashboard
                 </NavLink>
+                <NavLink to="/saiof-dashboard" className={navLinkStyle}>
+                  SAIOF Analytics
+                </NavLink>
               </>
             )}
           </div>

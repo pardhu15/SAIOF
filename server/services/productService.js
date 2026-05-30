@@ -1,9 +1,15 @@
 const Product = require('../models/Product');
+const mongoose = require('mongoose');
+const offlineDb = require('../utils/offlineDb');
 
 /**
  * Get all products with search, filtering, sorting, and pagination
  */
 const getAllProducts = async (queryParams) => {
+  if (mongoose.connection.readyState !== 1) {
+    return await offlineDb.getAllProducts(queryParams);
+  }
+
   const { search, category, sort, page = 1, limit = 10 } = queryParams;
 
   // Build filter object
@@ -44,11 +50,11 @@ const getAllProducts = async (queryParams) => {
   query = query.skip(skipIndex).limit(parsedLimit);
 
   // Execute query and total count
-  const products = await query;
+  const productsResult = await query;
   const totalCount = await Product.countDocuments(filter);
 
   return {
-    products,
+    products: productsResult,
     pagination: {
       total: totalCount,
       page: parsedPage,
@@ -62,6 +68,24 @@ const getAllProducts = async (queryParams) => {
  * Get single product by id
  */
 const getProductById = async (id) => {
+  if (mongoose.connection.readyState !== 1) {
+    return await offlineDb.getProductById(id);
+  }
+
+  // Online Mode dynamic sale mapper
+  if (id === 'sale') {
+    let product = await Product.findOne({ title: "SAIOF Flash Sale Optimization Bundle" });
+    if (!product) {
+      product = await Product.create({
+        title: "SAIOF Flash Sale Optimization Bundle",
+        price: 149.99,
+        description: "Exclusive promotional optimization bundle on flash sale.",
+        category: "electronics"
+      });
+    }
+    return product;
+  }
+
   const product = await Product.findById(id);
   if (!product) {
     throw new Error('Product not found');
@@ -73,6 +97,9 @@ const getProductById = async (id) => {
  * Create a new product
  */
 const createProduct = async (productData) => {
+  if (mongoose.connection.readyState !== 1) {
+    return await offlineDb.createProduct(productData);
+  }
   return await Product.create(productData);
 };
 
@@ -80,6 +107,10 @@ const createProduct = async (productData) => {
  * Update product details
  */
 const updateProduct = async (id, productData) => {
+  if (mongoose.connection.readyState !== 1) {
+    return await offlineDb.getProductById(id);
+  }
+
   const product = await Product.findByIdAndUpdate(
     id,
     { $set: productData },
@@ -95,6 +126,10 @@ const updateProduct = async (id, productData) => {
  * Delete product
  */
 const deleteProduct = async (id) => {
+  if (mongoose.connection.readyState !== 1) {
+    return await offlineDb.getProductById(id);
+  }
+
   const product = await Product.findByIdAndDelete(id);
   if (!product) {
     throw new Error('Product not found to delete');
@@ -109,3 +144,4 @@ module.exports = {
   updateProduct,
   deleteProduct
 };
+

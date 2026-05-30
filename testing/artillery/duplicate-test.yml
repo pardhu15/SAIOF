@@ -1,0 +1,28 @@
+config:
+  target: "http://localhost:5000"
+  phases:
+    - duration: 30
+      arrivalRate: 5
+      name: "Client Checkout Storm Duplication Test"
+  defaults:
+    headers:
+      Accept: "application/json"
+      Content-Type: "application/json"
+
+scenarios:
+  - name: "Duplicate POST Storming"
+    flow:
+      - post:
+          url: "/api/products"
+          json:
+            name: "Duplicate Test Product"
+            price: 99.99
+            description: "Artillery generated load test"
+            category: "electronics"
+      - post:
+          url: "/api/products"
+          json:
+            name: "Duplicate Test Product"
+            price: 99.99
+            description: "Artillery generated load test"
+            category: "electronics"

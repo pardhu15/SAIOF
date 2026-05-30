@@ -1,4 +1,6 @@
 const TrafficMetric = require('../models/TrafficMetric');
+const mongoose = require('mongoose');
+const offlineDb = require('../utils/offlineDb');
 
 // Tracks globally active requests on this process
 let activeRequests = 0;
@@ -18,13 +20,22 @@ const metricsMiddleware = (req, res, next) => {
     activeRequests = Math.max(0, activeRequests - 1);
 
     try {
-      // Record tick in the traffic metrics log database
-      await TrafficMetric.create({
-        endpoint: path,
-        concurrentUsers: activeRequests,
-        requestCount: 1, // Represents this request event
-        timestamp: new Date()
-      });
+      if (mongoose.connection.readyState !== 1) {
+        await offlineDb.addTrafficMetric({
+          endpoint: path,
+          concurrentUsers: activeRequests,
+          requestCount: 1, // Represents this request event
+          timestamp: new Date()
+        });
+      } else {
+        // Record tick in the traffic metrics log database
+        await TrafficMetric.create({
+          endpoint: path,
+          concurrentUsers: activeRequests,
+          requestCount: 1, // Represents this request event
+          timestamp: new Date()
+        });
+      }
     } catch (error) {
       console.error(`[SAIOF Metrics Error] Failed to log traffic metrics: ${error.message}`);
     }
@@ -34,3 +45,4 @@ const metricsMiddleware = (req, res, next) => {
 };
 
 module.exports = metricsMiddleware;
+

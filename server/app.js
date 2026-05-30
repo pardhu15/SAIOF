@@ -15,6 +15,8 @@ const healthRoute = require('./routes/healthRoute');
 const authRoutes = require('./routes/authRoutes');
 const productRoutes = require('./routes/productRoutes');
 const cartRoutes = require('./routes/cartRoutes');
+const analyticsRoutes = require('./routes/analyticsRoutes');
+const mlRoutes = require('./routes/mlRoutes');
 
 const app = express();
 
@@ -44,6 +46,8 @@ app.use('/api/health', healthRoute);
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/cart', cartRoutes);
+app.use('/api/analytics', analyticsRoutes);
+app.use('/api/ml', mlRoutes);
 
 // Catch 404 and forward to error handler
 app.use((req, res, next) => {

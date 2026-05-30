@@ -1,0 +1,58 @@
+name: SAIOF CI Hardening Pipeline
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18
+
+    - name: Install Root Dependencies
+      run: npm install
+
+    - name: Install Backend Dependencies
+      run: |
+        cd server
+        npm install
+
+    - name: Verify Backend Syntax (Dry Run)
+      run: |
+        cd server
+        node -c server.js
+        node -c app.js
+
+    - name: Install Frontend Dependencies
+      run: |
+        cd client
+        npm install
+
+    - name: Build Frontend Application
+      run: |
+        cd client
+        npm run build
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install Python Dependencies
+      run: |
+        pip install -r requirements.txt
+
+    - name: Verify Python Script Compilation (ML Engine)
+      run: |
+        cd ml-engine
+        python -m py_compile prepareDataset.py

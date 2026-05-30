@@ -1,5 +1,7 @@
 const crypto = require('crypto');
+const mongoose = require('mongoose');
 const RequestLog = require('../models/RequestLog');
+const offlineDb = require('../utils/offlineDb');
 
 /**
  * SAIOF Telemetry Request Logger
@@ -25,15 +27,27 @@ const loggerMiddleware = (req, res, next) => {
         .update(requestSignature)
         .digest('hex');
 
-      // Async write to database so it doesn't block the request lifecycle
-      await RequestLog.create({
-        endpoint: path,
-        method: req.method,
-        latency,
-        statusCode: res.statusCode,
-        requestHash,
-        timestamp: new Date()
-      });
+      // Check database readiness
+      if (mongoose.connection.readyState !== 1) {
+        await offlineDb.addRequestLog({
+          endpoint: path,
+          method: req.method,
+          latency,
+          statusCode: res.statusCode,
+          requestHash,
+          timestamp: new Date()
+        });
+      } else {
+        // Async write to database so it doesn't block the request lifecycle
+        await RequestLog.create({
+          endpoint: path,
+          method: req.method,
+          latency,
+          statusCode: res.statusCode,
+          requestHash,
+          timestamp: new Date()
+        });
+      }
 
       console.log(`[SAIOF Log] ${req.method} ${path} - Status: ${res.statusCode} (${latency}ms)`);
     } catch (error) {
@@ -45,3 +59,4 @@ const loggerMiddleware = (req, res, next) => {
 };
 
 module.exports = loggerMiddleware;
+

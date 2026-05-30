@@ -1,0 +1,17 @@
+{
+  "trafficModel": {
+    "r2_score": 0.9072,
+    "mae": 9.0044,
+    "rmse": 11.9986
+  },
+  "latencyModel": {
+    "r2_score": 0.9697,
+    "mae": 3.3273,
+    "rmse": 4.0869
+  },
+  "cacheDemandModel": {
+    "r2_score": 0.0342,
+    "mae": 0.0263,
+    "rmse": 0.0327
+  }
+}

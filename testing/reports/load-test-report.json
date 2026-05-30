@@ -1,0 +1,25 @@
+{
+  "latency": {
+    "meanMs": 71.47,
+    "minMs": 7,
+    "maxMs": 1568,
+    "p50Ms": 47,
+    "p90Ms": 80,
+    "p99Ms": 1543
+  },
+  "throughput": {
+    "totalRequests": 5050,
+    "durationSeconds": 6.05,
+    "requestsPerSecond": 834.99
+  },
+  "efficiency": {
+    "cacheHitRatio": 87.07,
+    "duplicateDetectionRate": 100,
+    "mergeEfficiency": 88.2
+  },
+  "statusCodes": {
+    "200": 4545,
+    "201": 3,
+    "409": 502
+  }
+}

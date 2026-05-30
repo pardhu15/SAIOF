@@ -1,0 +1,15 @@
+config:
+  target: "http://localhost:5000"
+  phases:
+    - duration: 30
+      arrivalRate: 40
+      name: "Simultaneous Database Stampede Load"
+  defaults:
+    headers:
+      Accept: "application/json"
+
+scenarios:
+  - name: "Concurrent Sale Product Coalescing"
+    flow:
+      - get:
+          url: "/api/products"

@@ -8,6 +8,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Cart from './pages/Cart';
 import Dashboard from './pages/Dashboard';
+import SAIOFDashboard from './pages/SAIOFDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 
 import { useAuth } from './context/AuthContext';
@@ -18,7 +19,7 @@ import AppLoader from './components/AppLoader';
  * Inspects path names to hide the global navbar on profile dashboard paths.
  */
 function AppContent() {
-  const { loading } = useAuth();
+  const { loading, isDbOffline } = useAuth();
   const location = useLocation();
 
   if (loading) {
@@ -28,12 +29,20 @@ function AppContent() {
   const showNavbar = location.pathname !== '/dashboard';
 
   return (
-    <div class="flex flex-col min-h-screen bg-[#0b0f19] text-gray-100 font-sans">
+    <div className="flex flex-col min-h-screen bg-[#0b0f19] text-gray-100 font-sans">
       {/* Navigation Bar (conditionally hidden on My Account dashboard page) */}
       {showNavbar && <Navbar />}
 
+      {/* Database Offline Failover Banner */}
+      {isDbOffline && (
+        <div className="bg-amber-500/10 border-b border-amber-500/20 text-amber-400 py-2.5 px-4 text-center text-xs font-semibold flex items-center justify-center space-x-2 animate-pulse">
+          <span>⚠️</span>
+          <span>Database Offline - Attempting Reconnection...</span>
+        </div>
+      )}
+
       {/* Main Content Area */}
-      <main class="flex-grow">
+      <main className="flex-grow">
         <Routes>
           {/* Public Routes */}
           <Route path="/products/:id" element={<ProductDetails />} />
@@ -64,6 +73,16 @@ function AppContent() {
             element={
               <ProtectedRoute>
                 <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          
+          {/* SAIOF Analytics Dashboard Route - Secured to Admin Only */}
+          <Route
+            path="/saiof-dashboard"
+            element={
+              <ProtectedRoute adminOnly={true}>
+                <SAIOFDashboard />
               </ProtectedRoute>
             }
           />

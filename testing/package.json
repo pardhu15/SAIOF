@@ -1,0 +1,20 @@
+{
+  "name": "saiof-testing",
+  "version": "1.0.0",
+  "description": "SAIOF - Load Testing & Simulation Suite",
+  "main": "runLoadTest.js",
+  "scripts": {
+    "test": "node runLoadTest.js",
+    "simulate": "node simulator/trafficSimulator.js"
+  },
+  "keywords": [
+    "saiof",
+    "testing",
+    "load-test"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.16.1"
+  }
+}

@@ -16,11 +16,29 @@ const errorHandler = (err, req, res, next) => {
     console.error(err.stack);
   }
 
+  // Detect MongoDB/Mongoose connection errors, timeouts, or socket disconnects
+  const isDatabaseError = 
+    err.name === 'MongoNetworkError' || 
+    err.name === 'MongooseError' ||
+    err.message.includes('buffering timed out') ||
+    err.message.includes('connection') ||
+    err.message.includes('topology') ||
+    err.message.includes('database') ||
+    err.code === 'ENOTFOUND';
+
+  if (isDatabaseError) {
+    return res.status(503).json({
+      success: false,
+      message: "Database temporarily unavailable"
+    });
+  }
+
   res.status(statusCode).json({
     success: false,
     message: err.message,
     stack: process.env.NODE_ENV === 'production' ? '🥞' : err.stack
   });
 };
+
 
 module.exports = errorHandler;

@@ -1,9 +1,16 @@
-# Node dependency directories
+# Dependency directories
 node_modules/
 client/node_modules/
 server/node_modules/
 
-# Local Environment Variables and Secrets
+# Build and distribution directories
+dist/
+build/
+client/dist/
+client/build/
+coverage/
+
+# Secrets and environment configurations
 .env
 server/.env
 *.env.local
@@ -11,20 +18,34 @@ server/.env
 *.env.test.local
 *.env.production.local
 
-# Vite and React Build Outputs
-client/dist/
-client/build/
-dist/
-build/
-
-# Debug logs
+# Logs and debugging outputs
+logs/
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# IDE and Editors Configurations
+# Python compiled weights and virtual environments
+__pycache__/
+**/__pycache__/
+*.pyc
+venv/
+venv_ml/
+ml-engine/venv/
+ml-engine/models/*.pkl
+ml-engine/models/*.joblib
+
+# OS configurations
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# IDE configurations
 .idea/
 .vscode/
 *.suo
@@ -33,11 +54,3 @@ lerna-debug.log*
 *.sln
 *.sw?
 .eslintcache
-
-# Operating System Files
-.DS_Store
-.DS_Store?
-._*
-Thumbs.db
-ehthumbs.db
-Desktop.ini

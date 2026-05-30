@@ -1,5 +1,50 @@
 const mongoose = require('mongoose');
 
+let reconnectionTimer = null;
+
+/**
+ * Initializes a 10-second background reconnect timer if MongoDB goes offline.
+ */
+const startReconnectionTimer = () => {
+  if (reconnectionTimer) return;
+
+  console.log('[Database] Automated database reconnection retry loop activated (10-second cycles).');
+  
+  reconnectionTimer = setInterval(async () => {
+    if (mongoose.connection.readyState !== 1) {
+      const timestamp = new Date().toISOString();
+      console.log(`[Database Reconnection] [${timestamp}] Attempting connection to MongoDB Atlas...`);
+      try {
+        const connStr = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/saiof';
+        const conn = await mongoose.connect(connStr, {
+          serverSelectionTimeoutMS: 5000
+        });
+        
+        console.log(`[Database Reconnection] [${new Date().toISOString()}] Successfully connected! Host: ${conn.connection.host}`);
+        
+        // Auto-seed default admin upon connection recovery
+        const seedAdmin = require('../utils/seedAdmin');
+        await seedAdmin();
+
+        clearInterval(reconnectionTimer);
+        reconnectionTimer = null;
+      } catch (err) {
+        console.error(`[Database Reconnection Warning] [${new Date().toISOString()}] Connection failed: ${err.message}`);
+      }
+    } else {
+      // Mongoose connected elsewhere, clean up timer
+      clearInterval(reconnectionTimer);
+      reconnectionTimer = null;
+    }
+  }, 10000);
+};
+
+// Listen to standard mongoose disconnected socket events
+mongoose.connection.on('disconnected', () => {
+  console.warn(`[Database Alert] [${new Date().toISOString()}] MongoDB connection disconnected! Reconnect loop triggered.`);
+  startReconnectionTimer();
+});
+
 /**
  * Connects to MongoDB using environment variables.
  * Designed to log status and propagate errors for controlled startup.
@@ -38,8 +83,20 @@ const connectDB = async () => {
       console.error('================================================================\n');
     }
     
-    throw error;
+    // Disable Mongoose query buffering on connection failure so that requests fail-fast and fall back gracefully
+    mongoose.set('bufferCommands', false);
+    console.warn('\n================================================================');
+    console.warn('⚠️  DATABASE OFFLINE WARNING:');
+    console.warn('This server is operating in OFFLINE/FALLBACK mode.');
+    console.warn('All aggregations and telemetries will use high-fidelity local seeds.');
+    console.warn('================================================================\n');
+    
+    return null;
   }
 };
 
-module.exports = connectDB;
+module.exports = {
+  connectDB,
+  startReconnectionTimer
+};
+

@@ -5,14 +5,14 @@ import Loader from './Loader';
 
 /**
  * Route protection wrapper.
- * Redirects unauthenticated traffic attempting to reach private pages back to the login screen.
+ * Redirects unauthenticated traffic back to login, and non-admins away from administrative pages.
  */
-const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated, loading } = useAuth();
+const ProtectedRoute = ({ children, adminOnly = false }) => {
+  const { isAuthenticated, user, loading } = useAuth();
 
   if (loading) {
     return (
-      <div class="min-h-[60vh] flex items-center justify-center">
+      <div className="min-h-[60vh] flex items-center justify-center">
         <Loader />
       </div>
     );
@@ -22,7 +22,12 @@ const ProtectedRoute = ({ children }) => {
     return <Navigate to="/login" replace />;
   }
 
+  if (adminOnly && user?.role !== 'admin') {
+    return <Navigate to="/" replace />;
+  }
+
   return children;
 };
+
 
 export default ProtectedRoute;

@@ -8,8 +8,30 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem('saiof_token'));
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isDbOffline, setIsDbOffline] = useState(false);
+
+  // Periodic database health checking (every 10 seconds)
+  useEffect(() => {
+    const checkDbHealth = async () => {
+      try {
+        const res = await apiClient.get('/health');
+        if (res.data && res.data.database === 'DISCONNECTED') {
+          setIsDbOffline(true);
+        } else {
+          setIsDbOffline(false);
+        }
+      } catch (err) {
+        setIsDbOffline(true);
+      }
+    };
+
+    checkDbHealth();
+    const interval = setInterval(checkDbHealth, 10000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Check if token exists in localStorage on boot and load user profile
+
   useEffect(() => {
     const bootstrapAuth = async () => {
       if (token) {
@@ -95,6 +117,7 @@ export const AuthProvider = ({ children }) => {
         loading,
         error,
         isAuthenticated: !!user,
+        isDbOffline,
         login: handleLogin,
         register: handleRegister,
         logout: handleLogout
@@ -102,6 +125,7 @@ export const AuthProvider = ({ children }) => {
     >
       {children}
     </AuthContext.Provider>
+
   );
 };
 

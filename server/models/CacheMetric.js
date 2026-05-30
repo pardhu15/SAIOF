@@ -1,15 +1,23 @@
 const mongoose = require('mongoose');
 
+/**
+ * SAIOF CacheMetric Schema
+ * Represents structured analytical metrics for evaluating caching performance.
+ * Matches requested tracking properties for analytics and ML pipeline integrations.
+ */
 const CacheMetricSchema = new mongoose.Schema({
-  cacheKey: {
+  cacheHit: {
+    type: Boolean,
+    required: true
+  },
+  cacheMiss: {
+    type: Boolean,
+    required: true
+  },
+  endpoint: {
     type: String,
     required: true,
     index: true
-  },
-  hitOrMiss: {
-    type: String,
-    enum: ['hit', 'miss'],
-    required: true
   },
   responseTime: {
     type: Number, // Response time in milliseconds

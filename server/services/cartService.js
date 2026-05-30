@@ -1,5 +1,49 @@
 const Cart = require('../models/Cart');
 const Product = require('../models/Product');
+const mongoose = require('mongoose');
+const offlineDb = require('../utils/offlineDb');
+
+// Offline in-memory cart repository
+const offlineCarts = {};
+
+const getOfflineCart = (userId) => {
+  if (!offlineCarts[userId]) {
+    offlineCarts[userId] = {
+      userId,
+      products: [],
+      totalPrice: 0.0
+    };
+  }
+  return offlineCarts[userId];
+};
+
+const recalculateOfflineCartTotals = async (cart) => {
+  let total = 0.0;
+  const validProducts = [];
+
+  for (const item of cart.products) {
+    try {
+      const prodId = item.productId._id || item.productId;
+      // Fetch product dynamically using our high-fidelity offlineDb catalog
+      const product = await offlineDb.getProductById(prodId);
+      if (product) {
+        total += product.price * item.quantity;
+        validProducts.push({
+          productId: product,
+          quantity: item.quantity
+        });
+      }
+    } catch (err) {
+      console.warn(`[Cart Service Fallback Warning] Failed to fetch product in offline cart calculation: ${err.message}`);
+    }
+  }
+
+  return {
+    userId: cart.userId,
+    products: validProducts,
+    totalPrice: Math.round(total * 100) / 100
+  };
+};
 
 /**
  * Helper to calculate cart total price dynamically using current product prices
@@ -26,6 +70,13 @@ const recalculateCartTotals = async (cart) => {
  * Get user's cart (populated with product info)
  */
 const getCartByUserId = async (userId) => {
+  // Offline Fallback Mode
+  if (mongoose.connection.readyState !== 1) {
+    console.log(`[Cart Service Fallback] Database offline. Executing getCartByUserId for user: ${userId}`);
+    const cart = getOfflineCart(userId);
+    return await recalculateOfflineCartTotals(cart);
+  }
+
   let cart = await Cart.findOne({ userId });
   if (!cart) {
     // If no cart exists, create a default empty one
@@ -51,6 +102,23 @@ const getCartByUserId = async (userId) => {
  * Add an item to the cart
  */
 const addItemToCart = async (userId, productId, quantity = 1) => {
+  // Offline Fallback Mode
+  if (mongoose.connection.readyState !== 1) {
+    console.log(`[Cart Service Fallback] Database offline. Executing addItemToCart for user: ${userId}`);
+    const cart = getOfflineCart(userId);
+    const itemIndex = cart.products.findIndex(
+      (item) => (item.productId._id || item.productId).toString() === productId.toString()
+    );
+
+    if (itemIndex > -1) {
+      cart.products[itemIndex].quantity += parseInt(quantity, 10);
+    } else {
+      cart.products.push({ productId, quantity: parseInt(quantity, 10) });
+    }
+    
+    return await recalculateOfflineCartTotals(cart);
+  }
+
   // Validate product exists
   const product = await Product.findById(productId);
   if (!product) {
@@ -87,6 +155,28 @@ const addItemToCart = async (userId, productId, quantity = 1) => {
  * Update item quantity in the cart
  */
 const updateItemQuantity = async (userId, productId, quantity) => {
+  // Offline Fallback Mode
+  if (mongoose.connection.readyState !== 1) {
+    console.log(`[Cart Service Fallback] Database offline. Executing updateItemQuantity for user: ${userId}`);
+    const cart = getOfflineCart(userId);
+    const itemIndex = cart.products.findIndex(
+      (item) => (item.productId._id || item.productId).toString() === productId.toString()
+    );
+
+    if (itemIndex === -1) {
+      throw new Error('Item not found in offline cart');
+    }
+
+    const parsedQty = parseInt(quantity, 10);
+    if (parsedQty <= 0) {
+      cart.products.splice(itemIndex, 1);
+    } else {
+      cart.products[itemIndex].quantity = parsedQty;
+    }
+
+    return await recalculateOfflineCartTotals(cart);
+  }
+
   let cart = await Cart.findOne({ userId });
   if (!cart) {
     throw new Error('Cart not found for this user');
@@ -118,6 +208,16 @@ const updateItemQuantity = async (userId, productId, quantity) => {
  * Remove an item from the cart
  */
 const removeItemFromCart = async (userId, productId) => {
+  // Offline Fallback Mode
+  if (mongoose.connection.readyState !== 1) {
+    console.log(`[Cart Service Fallback] Database offline. Executing removeItemFromCart for user: ${userId}`);
+    const cart = getOfflineCart(userId);
+    cart.products = cart.products.filter(
+      (item) => (item.productId._id || item.productId).toString() !== productId.toString()
+    );
+    return await recalculateOfflineCartTotals(cart);
+  }
+
   let cart = await Cart.findOne({ userId });
   if (!cart) {
     throw new Error('Cart not found for this user');
@@ -139,3 +239,4 @@ module.exports = {
   updateItemQuantity,
   removeItemFromCart
 };
+
