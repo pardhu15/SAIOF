@@ -26,7 +26,10 @@ app.use(express.urlencoded({ extended: true }));
 
 // CORS configuration - allowing connection from port 5173
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: [
+    'http://localhost:5173',
+    'https://saiof-r4gho8y6q-pardhu-s-projects2.vercel.app'
+  ],
   credentials: true
 }));
 
