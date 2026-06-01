@@ -237,6 +237,14 @@ class DataPreparationPipeline:
         data_dir_url = self.data_dir.replace("\\", "/")
         plots_dir_url = self.plots_dir.replace("\\", "/")
 
+        stats_rows_md = "\n".join(stats_rows)
+        missing_rows_md = "\n".join(missing_rows)
+        outlier_rows_md = "\n".join(outlier_rows)
+
+        traffic_imp_rows_md = "\n".join(traffic_imp_rows)
+        cache_imp_rows_md = "\n".join(cache_imp_rows)
+        latency_imp_rows_md = "\n".join(latency_imp_rows)
+
         report_content = f"""# SAIOF ML Telemetry Data Preparation & Diagnostics Report
 
 This diagnostic data preparation report summarizes feature engineering, dataset statistics, missing values, outliers, and feature importances calculated across raw telemetry. It qualifies the dataset before production model training begins.
@@ -254,7 +262,7 @@ This diagnostic data preparation report summarizes feature engineering, dataset 
 
 | Feature Column | Type | Observations | Mean | Min | Median (p50) | Max |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-{"\n".join(stats_rows)}
+{stats_rows_md}
 
 ---
 
@@ -262,7 +270,7 @@ This diagnostic data preparation report summarizes feature engineering, dataset 
 
 | Feature Column | Null Count | Null Ratio |
 | :--- | :---: | :---: |
-{"\n".join(missing_rows)}
+{missing_rows_md}
 
 ---
 
@@ -272,7 +280,7 @@ Outliers are evaluated using the standard Q1/Q3 Interquartile Range boundary: `[
 
 | Feature Column | Lower Bound | Upper Bound | Outlier Count | Outlier Ratio |
 | :--- | :---: | :---: | :---: | :---: |
-{"\n".join(outlier_rows)}
+{outlier_rows_md}
 
 ---
 
@@ -281,7 +289,7 @@ Outliers are evaluated using the standard Q1/Q3 Interquartile Range boundary: `[
 ### 1. Traffic Prediction Model (Target: `requestCount`)
 | Feature Name | Relative Importance Coefficient |
 | :--- | :---: |
-{"\n".join(traffic_imp_rows)}
+{traffic_imp_rows_md}
 
 ### 2. Cache Demand Model (Target: `cacheHitRatio`)
 | Feature Name | Relative Importance Coefficient |
@@ -291,7 +299,7 @@ Outliers are evaluated using the standard Q1/Q3 Interquartile Range boundary: `[
 ### 3. Latency Bottleneck Model (Target: `averageLatency`)
 | Feature Name | Relative Importance Coefficient |
 | :--- | :---: |
-{"\n".join(latency_imp_rows)}
+{latency_imp_rows_md}
 
 ---
 
