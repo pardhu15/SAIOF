@@ -294,7 +294,7 @@ Outliers are evaluated using the standard Q1/Q3 Interquartile Range boundary: `[
 ### 2. Cache Demand Model (Target: `cacheHitRatio`)
 | Feature Name | Relative Importance Coefficient |
 | :--- | :---: |
-{"\n".join(cache_imp_rows)}
+{cache_imp_rows_md}
 
 ### 3. Latency Bottleneck Model (Target: `averageLatency`)
 | Feature Name | Relative Importance Coefficient |
