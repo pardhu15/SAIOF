@@ -15,11 +15,7 @@ export const AuthProvider = ({ children }) => {
     const checkDbHealth = async () => {
       try {
         const res = await apiClient.get('/health');
-        if (res.data && res.data.database === 'DISCONNECTED') {
-          setIsDbOffline(true);
-        } else {
-          setIsDbOffline(false);
-        }
+        setIsDbOffline(false);
       } catch (err) {
         setIsDbOffline(true);
       }
