@@ -234,6 +234,8 @@ class DataPreparationPipeline:
         traffic_imp_rows = [f"| **{feat}** | {imp:.4f} |" for feat, imp in sorted(importances['traffic'].items(), key=lambda x: x[1], reverse=True)]
         cache_imp_rows = [f"| **{feat}** | {imp:.4f} |" for feat, imp in sorted(importances['cache'].items(), key=lambda x: x[1], reverse=True)]
         latency_imp_rows = [f"| **{feat}** | {imp:.4f} |" for feat, imp in sorted(importances['latency'].items(), key=lambda x: x[1], reverse=True)]
+        data_dir_url = self.data_dir.replace("\\", "/")
+        plots_dir_url = self.plots_dir.replace("\\", "/")
 
         report_content = f"""# SAIOF ML Telemetry Data Preparation & Diagnostics Report
 
@@ -297,14 +299,14 @@ Outliers are evaluated using the standard Q1/Q3 Interquartile Range boundary: `[
 
 The processed and engineered sub-datasets have been successfully serialized for model training:
 
-1. **Traffic Prediction**: [traffic_processed.csv](file:///{self.data_dir.replace('\\', '/')}/traffic_processed.csv)
-2. **Latency Prediction**: [latency_processed.csv](file:///{self.data_dir.replace('\\', '/')}/latency_processed.csv)
-3. **Cache Demand Prediction**: [cache_processed.csv](file:///{self.data_dir.replace('\\', '/')}/cache_processed.csv)
+1. **Traffic Prediction**: [traffic_processed.csv](file:///{data_dir_url}/traffic_processed.csv)
+2. **Latency Prediction**: [latency_processed.csv](file:///{data_dir_url}/latency_processed.csv)
+3. **Cache Demand Prediction**: [cache_processed.csv](file:///{data_dir_url}/cache_processed.csv)
 
 Visual analytics compiled:
-* [Correlation Heatmap Matrix](file:///{self.plots_dir.replace('\\', '/')}/correlation_matrix.png)
-* [Feature Importances Spline](file:///{self.plots_dir.replace('\\', '/')}/feature_importance_latency.png)
-* [Diurnal Load Seasonality splines](file:///{self.plots_dir.replace('\\', '/')}/hourly_load_seasonality.png)
+* [Correlation Heatmap Matrix](file:///{plots_dir_url}/correlation_matrix.png)
+* [Feature Importances Spline](file:///{plots_dir_url}/feature_importance_latency.png)
+* [Diurnal Load Seasonality splines](file:///{plots_dir_url}/hourly_load_seasonality.png)
 """
         with open(report_path, "w", encoding="utf-8") as f:
             f.write(report_content)
