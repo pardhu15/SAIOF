@@ -196,3 +196,173 @@ node runLoadTest.js
 - **Dynamic rate-shaping**: Adjust rate limits dynamically based on the predicted system latency bounds.
 CI trigger update
 CI workflow test
+
+
+# 🌐 19. Production Deployment Architecture
+
+## Deployment Overview
+
+SAIOF is deployed using a distributed microservices-inspired architecture where each major component is independently hosted and managed.
+
+### Production Environment
+
+| Component             | Technology                      | Deployment Platform |
+| --------------------- | ------------------------------- | ------------------- |
+| Frontend Service      | React + Vite                    | Vercel              |
+| Backend API Service   | Node.js + Express.js            | Render              |
+| Database Service      | MongoDB Atlas                   | MongoDB Cloud       |
+| Analytics Engine      | Node.js Aggregation Engine      | Backend Service     |
+| ML Forecasting Engine | Python + FastAPI + Scikit-Learn | ML Service Layer    |
+| CI/CD Pipeline        | GitHub Actions                  | GitHub              |
+
+---
+
+## Production URLs
+
+### Frontend Application
+
+https://saiof-r4gho8y6q-pardhu-s-projects2.vercel.app
+
+### Backend API
+
+https://saiof-backend.onrender.com
+
+---
+
+## Production System Architecture
+
+```text
+                           ┌─────────────────────┐
+                           │    User Browser     │
+                           └──────────┬──────────┘
+                                      │
+                                      ▼
+                           ┌─────────────────────┐
+                           │ React Frontend      │
+                           │ Vercel Deployment   │
+                           └──────────┬──────────┘
+                                      │ HTTPS
+                                      ▼
+                           ┌─────────────────────┐
+                           │ Express Backend     │
+                           │ Render Deployment   │
+                           └───────┬─────┬───────┘
+                                   │     │
+                                   │     ▼
+                                   │ Analytics Engine
+                                   │
+                                   ▼
+                           ┌─────────────────────┐
+                           │ MongoDB Atlas       │
+                           │ Cloud Database      │
+                           └──────────┬──────────┘
+                                      │
+                                      ▼
+                           ┌─────────────────────┐
+                           │ ML Forecast Engine  │
+                           │ FastAPI + RF Models │
+                           └─────────────────────┘
+```
+
+---
+
+## Frontend Deployment (Vercel)
+
+### Configuration
+
+```bash
+Root Directory: client
+Build Command: npm run build
+Output Directory: dist
+```
+
+### Responsibilities
+
+* User Authentication UI
+* Product Catalog
+* Shopping Cart
+* User Dashboard
+* SAIOF Analytics Dashboard
+* API Communication Layer
+
+---
+
+## Backend Deployment (Render)
+
+### Configuration
+
+```bash
+Build Command:
+npm install && cd server && npm install
+
+Start Command:
+cd server && npm start
+```
+
+### Responsibilities
+
+* Authentication APIs
+* Product APIs
+* Cart APIs
+* Analytics APIs
+* ML APIs
+* Middleware Processing
+* Metrics Collection
+
+---
+
+## MongoDB Atlas Deployment
+
+MongoDB Atlas acts as the centralized cloud persistence layer for:
+
+* Users
+* Products
+* Carts
+* Request Logs
+* Traffic Metrics
+* Cache Metrics
+* Duplicate Metrics
+* Merge Metrics
+* Prediction History
+
+---
+
+## CI/CD Pipeline
+
+### GitHub Actions Workflow
+
+1. Developer pushes changes to GitHub.
+2. GitHub Actions validates source code.
+3. Repository is synchronized automatically.
+4. Render deploys backend updates.
+5. Vercel deploys frontend updates.
+6. Production environment is updated.
+
+---
+
+## Production Request Flow
+
+1. User accesses SAIOF through Vercel.
+2. React frontend sends API requests to Render backend.
+3. Backend executes middleware optimization pipeline.
+4. Analytics and telemetry are collected.
+5. MongoDB Atlas processes storage operations.
+6. ML Engine consumes telemetry datasets.
+7. Predictions and analytics are returned to frontend dashboards.
+
+---
+
+## Deployment Status
+
+| Service                   | Status      |
+| ------------------------- | ----------- |
+| Frontend Deployment       | ✅ Completed |
+| Backend Deployment        | ✅ Completed |
+| MongoDB Atlas Integration | ✅ Completed |
+| Analytics Engine          | ✅ Completed |
+| ML Engine                 | ✅ Completed |
+| GitHub Actions CI/CD      | ✅ Completed |
+
+### Current Environment Status
+
+Production Ready 🚀
