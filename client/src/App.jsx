@@ -37,7 +37,7 @@ function AppContent() {
       {isDbOffline && (
         <div className="bg-amber-500/10 border-b border-amber-500/20 text-amber-400 py-2.5 px-4 text-center text-xs font-semibold flex items-center justify-center space-x-2 animate-pulse">
           <span>⚠️</span>
-          <span>Database Offline - Attempting Reconnection...</span>
+          <span>Database Offline - Reconnecting...</span>
         </div>
       )}
 
