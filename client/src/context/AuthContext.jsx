@@ -14,11 +14,13 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const checkDbHealth = async () => {
       try {
-        const res = await apiClient.get('/health');
-        setIsDbOffline(false);
-      } catch (err) {
-        setIsDbOffline(true);
-      }
+  const res = await apiClient.get('/health');
+  console.log('Health Check:', res.data);
+  setIsDbOffline(false);
+} catch (err) {
+  console.error('Health Check Failed:', err);
+  setIsDbOffline(true);
+}
     };
 
     checkDbHealth();
